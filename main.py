@@ -11,7 +11,7 @@ import cv2
 import os
 
 
-# Standard Video Dimensions Sizes
+# Определение стандартных размеров видео для различных разрешений
 STD_DIMENSIONS = {
     "480p": (640, 480),
     "720p": (1280, 720),
@@ -19,7 +19,7 @@ STD_DIMENSIONS = {
     "4k": (3840, 2160),
 }
 
-
+# Определение типов видеофайлов и их кодеков с использованием библиотеки OpenCV
 # http://www.fourcc.org/codecs.php
 VIDEO_TYPE = {
     'avi': cv2.VideoWriter_fourcc(*'XVID'),
@@ -36,7 +36,8 @@ class KivyCamera(BoxLayout):
         self.img1 = Image()
         self.add_widget(self.img1)
 
-        self.capture = cv2.VideoCapture("rtsp://192.168.0.3:8080/h264_ulaw.sdp")
+        # аргумент = источник трансляции (либо индекс камеры либо ссылка вида "rtsp://192.168.0.3:8080/h264_ulaw.sdp")
+        self.capture = cv2.VideoCapture(0)
         self.out = None
 
         self.start_stop_button = Button(text='Start Recording')
@@ -55,35 +56,42 @@ class KivyCamera(BoxLayout):
         texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt="bgr")
         texture.blit_buffer(buf, colorfmt="bgr", bufferfmt="ubyte")
         self.img1.texture = texture
-
+        
+# Метод для определения следует ли начать или остановить запись видео
     def toggle_recording(self, instance):
         if self.out is None:
             self.start_recording()
         else:
             self.stop_recording()
-
+            
+# Метод записи видео
     def start_recording(self):
         self.out = cv2.VideoWriter(self.filename, self.get_video_type(self.filename), self.frames_per_second, self.get_dims(self.capture, self.video_resolution))
         self.start_stop_button.text = 'Stop Recording'
         print('Recording started!')
-
+        
+# Метод остановки записи видео
     def stop_recording(self):
         self.out.release()
         self.out = None
         self.start_stop_button.text = 'Start Recording'
         print('Recording stopped!')
-
+        
+# Изменение разрешения видеозахвата на указанные значения ширины и высоты
     def change_resolution(self, cap, width, height):
         self.capture.set(3, width)
         self.capture.set(4, height)
-
+        
+# Определение размеров видео в соответствии с выбранным разрешением
     def get_dims(self, cap, video_resolution='1080p'):
         width, height = STD_DIMENSIONS["480p"]
         if self.video_resolution in STD_DIMENSIONS:
             width, height = STD_DIMENSIONS[self.video_resolution]
         self.change_resolution(cap, width, height)
         return width, height
-
+    
+# Определение типа видеофайла (расширения) 
+# Стандартно - avi
     def get_video_type(self, filename):
         filename, ext = os.path.splitext(filename)
         if ext in VIDEO_TYPE:
