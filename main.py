@@ -19,8 +19,8 @@ STD_DIMENSIONS = {
     "4k": (3840, 2160),
 }
 
-# Video Encoding, might require additional installs
-# Types of Codes: http://www.fourcc.org/codecs.php
+
+# http://www.fourcc.org/codecs.php
 VIDEO_TYPE = {
     'avi': cv2.VideoWriter_fourcc(*'XVID'),
     'mp4': cv2.VideoWriter_fourcc(*'XVID'),
